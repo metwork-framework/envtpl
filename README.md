@@ -120,6 +120,17 @@ renders:
 
     This is the system date: Mon Apr 23 13:11:11 CEST 2018
 
+Another custom filter is included: "uuid". It can be used to generate uuids
+during template parsing.
+
+For example:
+
+    This is the uuid : {{ ""| uuid }}
+
+renders:
+
+    This is the uuid: ddd6103c6c0b5951b04789f8efa386f9
+
 A last custom filter is included: "getenv". It can be used to get an environnement
 variable value dynamicaly.
 
