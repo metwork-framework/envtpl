@@ -25,6 +25,8 @@ import jinja2
 import json
 import io
 import subprocess
+import hashlib
+import uuid
 
 
 EXTENSION = '.tpl'
@@ -170,6 +172,7 @@ def _render(template_name, loader, variables, undefined):
     env.filters['from_json'] = from_json
     env.filters['shell'] = shell
     env.filters['getenv'] = getenv
+    env.filters['uuid'] = getuuid
 
     template = env.get_template(template_name)
     template.globals['environment'] = get_environment
@@ -212,6 +215,15 @@ def shell(eval_ctx, value, die_on_error=False, encoding="utf8"):
 @jinja2.evalcontextfilter
 def getenv(eval_ctx, value, default=None):
     result = os.environ.get(value, default)
+    if result is None:
+        raise Exception("can't find %s environnement variable" % value)
+    return result
+
+
+@jinja2.evalcontextfilter
+def getuuid(eval_ctx, value, default=None):
+    v = str(uuid.uuid4()).replace('-', '') + value
+    result = hashlib.md5(v.encode()).hexdigest()
     if result is None:
         raise Exception("can't find %s environnement variable" % value)
     return result

@@ -88,6 +88,12 @@ foo = bar
                                                 jinja2.StrictUndefined),
                           "foo\n")
 
+    @unittest.skipUnless(sys.platform == "linux", "require linux")
+    def test_uuid(self):
+        string = '''{{ "echo foo"|uuid }}'''
+        uuid = envtpl._render_string(string, {}, jinja2.StrictUndefined)
+        self.assertEquals(len(uuid), 32)
+
     def test_from_json_list(self):
         string = '''
 {% for foo in FOOS_JSON | from_json %}{{ foo.bar }}
