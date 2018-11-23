@@ -108,6 +108,10 @@ This is the use case I've optimised for, so that's why envtpl by default will de
 install_requires = ['Jinja2>=2.7']
 if sys.version_info < (2, 7):
     install_requires.append('argparse>=1.0')
+for jext in ("jinja2_getenv_extension", "jinja2_shell_extension",
+             "jinja2_from_json_extension"):
+    install_requires.append("-e git+https://github.com/metwork-framework/"
+                            "%s.git#egg=%s" % (jext, jext))
 
 setup(
     name='envtpl',

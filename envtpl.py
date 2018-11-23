@@ -168,10 +168,10 @@ def _render_file(filename, variables, undefined, extra_search_paths=[]):
 
 
 def _render(template_name, loader, variables, undefined):
-    env = jinja2.Environment(loader=loader, undefined=undefined)
-    env.filters['from_json'] = from_json
-    env.filters['shell'] = shell
-    env.filters['getenv'] = getenv
+    extension = ["jinja2_getenv_extension", "jinja2_shell_extension",
+                 "jinja2_from_json_extension"]
+    env = jinja2.Environment(loader=loader, undefined=undefined,
+                             extensions=extensions)
     env.filters['uuid'] = getuuid
 
     template = env.get_template(template_name)
@@ -195,29 +195,6 @@ def get_environment(context, prefix=''):
     for key, value in sorted(context.items()):
         if not callable(value) and key.startswith(prefix):
             yield key[len(prefix):], value
-
-
-@jinja2.evalcontextfilter
-def from_json(eval_ctx, value):
-    return json.loads(value)
-
-
-@jinja2.evalcontextfilter
-def shell(eval_ctx, value, die_on_error=False, encoding="utf8"):
-    if die_on_error:
-        cmd = value
-    else:
-        cmd = "%s ; exit 0" % value
-    output = subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True)
-    return output.decode(encoding)
-
-
-@jinja2.evalcontextfilter
-def getenv(eval_ctx, value, default=None):
-    result = os.environ.get(value, default)
-    if result is None:
-        raise Exception("can't find %s environnement variable" % value)
-    return result
 
 
 @jinja2.evalcontextfilter
