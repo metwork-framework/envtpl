@@ -1,10 +1,6 @@
-<a name=""></a>
-# (unreleased)
+<a name="unreleased"></a>
+## [Unreleased]
 
-
-### Bug Fixes
-
-* UnboundLocalError: local variable 'template' referenced before assignment ([4c1063d](https://github.com/metwork-framework/envtpl/commit/4c1063d))
-
-
+### Fix
+- UnboundLocalError: local variable 'template' referenced before assignment
 
