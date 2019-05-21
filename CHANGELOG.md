@@ -1,6 +1,15 @@
-<a name="unreleased"></a>
+# CHANGELOG
+
+
 ## [Unreleased]
 
-### Fix
+### New Features
+
+
+### Bug Fixes
 - UnboundLocalError: local variable 'template' referenced before assignment
+
+
+
+
 
