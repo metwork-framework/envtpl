@@ -31,6 +31,20 @@ class TestRender(unittest.TestCase):
         self.assertEquals(envtpl._render_string('{{ FOO | default("abc") }}', {'FOO': 'def'},
                           jinja2.StrictUndefined), 'def')
 
+    def test_reduce_blank_lines(self):
+        string = '\n \nHello\n   \n\nWorld'
+        expected = '\nHello\n\nWorld'
+        self.assertEquals(
+            envtpl._render_string(string, {}, jinja2.StrictUndefined,
+                                  keep_multi_blank_lines=False),
+            expected)
+
+    def test_keep_blank_lines(self):
+        string = '\n\nHello\n   \n\nWorld'
+        self.assertEquals(
+            envtpl._render_string(string, {}, jinja2.StrictUndefined),
+            string)
+
     def test_quoted(self):
         string = '''
 foo = {{ FOO | default(123) }}
