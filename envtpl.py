@@ -75,8 +75,8 @@ def main():
                                   for x in args.search_paths.split(',')]
         process_file(args.input_file, args.output_file, variables,
                      not args.allow_missing, not args.keep_template,
-                     not args.reduce_multi_blank_lines,
-                     extra_search_paths)
+                     extra_search_paths,
+                     not args.reduce_multi_blank_lines)
     except (Fatal, IOError) as e:
         sys.stderr.write('Error: %s\n' % str(e))
         sys.exit(1)
@@ -86,7 +86,7 @@ def main():
 
 def process_file(input_filename, output_filename, variables,
                  die_on_missing_variable, remove_template,
-                 keep_multi_blank_lines, extra_search_paths=[]):
+                 extra_search_paths=[], keep_multi_blank_lines=True):
     if not input_filename and not remove_template:
         raise Fatal('--keep-template only makes sense if you specify '
                     'an input file')
@@ -105,13 +105,13 @@ def process_file(input_filename, output_filename, variables,
             raise Fatal('Output filename is empty')
 
     if input_filename:
-        output = _render_file(input_filename, variables,
-                              keep_multi_blank_lines,
-                              undefined, extra_search_paths)
+        output = _render_file(input_filename, variables, undefined,
+                              extra_search_paths=extra_search_paths,
+                              keep_multi_blank_lines=keep_multi_blank_lines)
     else:
-        output = _render_string(stdin_read(), variables,
-                                keep_multi_blank_lines,
-                                undefined, extra_search_paths)
+        output = _render_string(stdin_read(), variables, undefined,
+                                extra_search_paths=extra_search_paths,
+                                keep_multi_blank_lines=keep_multi_blank_lines)
 
     if output_filename and output_filename != '-':
         with open(output_filename, 'wb') as f:
@@ -124,7 +124,7 @@ def process_file(input_filename, output_filename, variables,
 
 
 def render_string(string, extra_variables={}, die_on_missing_variable=True,
-                  keep_multi_blank_lines=True, extra_search_paths=[]):
+                  extra_search_paths=[], keep_multi_blank_lines=True):
     """
     Renders a templated string with envtpl.
 
@@ -135,10 +135,10 @@ def render_string(string, extra_variables={}, die_on_missing_variable=True,
             to environnement).
         die_on_missing_variable (boolean): if True (default), an exception
             is raised when there are some missing variables.
-        keep_multi_blank_lines (boolean): if True (default), multi blank
-            lines are kept (otherwise they are reduced to a single one)
         extra_search_path (list): list of paths (string) for templates
             searching (inheritance, includes...).
+        keep_multi_blank_lines (boolean): if True (default), multi blank
+            lines are kept (otherwise they are reduced to a single one)
 
     Returns:
         string: rendered template.
@@ -150,21 +150,20 @@ def render_string(string, extra_variables={}, die_on_missing_variable=True,
     variables = dict([(k, _unicodify(v)) for k, v in os.environ.items()])
     for (key, value) in extra_variables.items():
         variables[key] = value
-    return _render_string(string, variables,
-                          keep_multi_blank_lines, undefined,
-                          extra_search_paths=extra_search_paths)
+    return _render_string(string, variables, undefined,
+                          extra_search_paths=extra_search_paths,
+                          keep_multi_blank_lines=keep_multi_blank_lines)
 
 
-def _render_string(string, variables, keep_multi_blank_lines, undefined,
-                   extra_search_paths=[]):
+def _render_string(string, variables, undefined,
+                   extra_search_paths=[], keep_multi_blank_lines=True):
     template_name = 'template_name'
     loader1 = jinja2.DictLoader({template_name: _unicodify(string)})
-    loader2 = jinja2.FileSystemLoader([os.getcwd()] +
-                                      extra_search_paths,
+    loader2 = jinja2.FileSystemLoader([os.getcwd()] + extra_search_paths,
                                       followlinks=True)
     loader = jinja2.ChoiceLoader([loader1, loader2])
     return _render(template_name, loader, variables,
-                   keep_multi_blank_lines, undefined)
+                   undefined, keep_multi_blank_lines=keep_multi_blank_lines)
 
 
 def _unicodify(s):
@@ -188,18 +187,18 @@ def stdout_write(output):
                          encoding='utf-8').write(output)
 
 
-def _render_file(filename, variables, keep_multi_blank_lines, undefined,
-                 extra_search_paths=[]):
+def _render_file(filename, variables, undefined,
+                 extra_search_paths=[], keep_multi_blank_lines=True):
     dirname = os.path.dirname(filename)
     loader = jinja2.FileSystemLoader([dirname] + extra_search_paths,
                                      followlinks=True)
     relpath = os.path.relpath(filename, dirname)
-    return _render(relpath, loader, variables, keep_multi_blank_lines,
-                   undefined)
+    return _render(relpath, loader, variables, undefined,
+                   keep_multi_blank_lines=keep_multi_blank_lines)
 
 
-def _render(template_name, loader, variables, keep_multi_blank_lines,
-            undefined):
+def _render(template_name, loader, variables, undefined,
+            keep_multi_blank_lines=True):
     env = jinja2.Environment(loader=loader, undefined=undefined)
     env.filters['from_json'] = from_json
     env.filters['shell'] = shell
