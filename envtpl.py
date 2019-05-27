@@ -36,28 +36,32 @@ IS_PYTHON_2 = sys.version_info < (3, 0)
 
 def main():
     parser = argparse.ArgumentParser(
-        description='jinja2 template rendering with shell environment variables'
+        description='jinja2 template rendering with shell environment '
+                    'variables'
     )
     parser.add_argument('input_file',
                         nargs='?', help='Input filename. Defaults to stdin.')
     parser.add_argument('-o', '--output-file',
-                        help='Output filename. If none is given, and the input file ends '
-                        'with "%s", the output filename is the same as the input '
-                        'filename, sans the %s extension. Otherwise, defaults to stdout.' %
-                        (EXTENSION, EXTENSION))
+                        help='Output filename. If none is given, and the '
+                        'input file ends with "%s", the output filename '
+                        'is the same as the input filename, without the '
+                        '%s extension. Otherwise, defaults to stdout.'
+                        % (EXTENSION, EXTENSION))
     parser.add_argument('-i', '--search-paths',
-                        help='coma separated additional search paths for template inheritance')
+                        help='coma separated additional search paths for '
+                        'template inheritance')
     parser.add_argument('--allow-missing', action='store_true',
-                        help='Allow missing variables. By default, envtpl will die with exit '
-                        'code 1 if an environment variable is missing')
+                        help='Allow missing variables. By default, envtpl'
+                        ' will die with exit code 1 if an environment '
+                        'variable is missing')
     parser.add_argument('--keep-template', action='store_true',
-                        help='Keep original template file. By default, envtpl will delete '
-                        'the template file')
+                        help='Keep original template file. By default, '
+                        'envtpl will delete the template file')
 
     parser.add_argument('--reduce-multi-blank-lines', action='store_true',
-                        help='Reduce multi empty or blank lines to a single '
-                        'empty line. By default envtpl will keep multi blank '
-                        'lines')
+                        help='Reduce multi empty or blank lines to a '
+                        'single empty line. By default envtpl will keep '
+                        'multi blank lines')
 
     args = parser.parse_args()
 
@@ -67,10 +71,12 @@ def main():
         if args.search_paths is None:
             extra_search_paths = []
         else:
-            extra_search_paths = [x.strip() for x in args.search_paths.split(',')]
+            extra_search_paths = [x.strip()
+                                  for x in args.search_paths.split(',')]
         process_file(args.input_file, args.output_file, variables,
                      not args.allow_missing, not args.keep_template,
-                     not args.reduce_multi_blank_lines, extra_search_paths)
+                     not args.reduce_multi_blank_lines,
+                     extra_search_paths)
     except (Fatal, IOError) as e:
         sys.stderr.write('Error: %s\n' % str(e))
         sys.exit(1)
@@ -79,10 +85,11 @@ def main():
 
 
 def process_file(input_filename, output_filename, variables,
-                 die_on_missing_variable, remove_template, 
+                 die_on_missing_variable, remove_template,
                  keep_multi_blank_lines, extra_search_paths=[]):
     if not input_filename and not remove_template:
-        raise Fatal('--keep-template only makes sense if you specify an input file')
+        raise Fatal('--keep-template only makes sense if you specify '
+                    'an input file')
 
     if die_on_missing_variable:
         undefined = jinja2.StrictUndefined
@@ -98,10 +105,12 @@ def process_file(input_filename, output_filename, variables,
             raise Fatal('Output filename is empty')
 
     if input_filename:
-        output = _render_file(input_filename, variables, keep_multi_blank_lines,
+        output = _render_file(input_filename, variables,
+                              keep_multi_blank_lines,
                               undefined, extra_search_paths)
     else:
-        output = _render_string(stdin_read(), variables, keep_multi_blank_lines,
+        output = _render_string(stdin_read(), variables,
+                                keep_multi_blank_lines,
                                 undefined, extra_search_paths)
 
     if output_filename and output_filename != '-':
@@ -141,7 +150,8 @@ def render_string(string, extra_variables={}, die_on_missing_variable=True,
     variables = dict([(k, _unicodify(v)) for k, v in os.environ.items()])
     for (key, value) in extra_variables.items():
         variables[key] = value
-    return _render_string(string, variables, keep_multi_blank_lines, undefined,
+    return _render_string(string, variables,
+                          keep_multi_blank_lines, undefined,
                           extra_search_paths=extra_search_paths)
 
 
@@ -149,10 +159,12 @@ def _render_string(string, variables, keep_multi_blank_lines, undefined,
                    extra_search_paths=[]):
     template_name = 'template_name'
     loader1 = jinja2.DictLoader({template_name: _unicodify(string)})
-    loader2 = jinja2.FileSystemLoader([os.getcwd()] + extra_search_paths, followlinks=True)
+    loader2 = jinja2.FileSystemLoader([os.getcwd()] +
+                                      extra_search_paths,
+                                      followlinks=True)
     loader = jinja2.ChoiceLoader([loader1, loader2])
-    return _render(template_name, loader, variables, keep_multi_blank_lines,
-                   undefined)
+    return _render(template_name, loader, variables,
+                   keep_multi_blank_lines, undefined)
 
 
 def _unicodify(s):
@@ -172,18 +184,22 @@ def stdout_write(output):
     if IS_PYTHON_2:
         sys.stdout.write(_unicodify(output))
     else:
-        io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8').write(output)
+        io.TextIOWrapper(sys.stdout.buffer,
+                         encoding='utf-8').write(output)
 
 
 def _render_file(filename, variables, keep_multi_blank_lines, undefined,
                  extra_search_paths=[]):
     dirname = os.path.dirname(filename)
-    loader = jinja2.FileSystemLoader([dirname] + extra_search_paths, followlinks=True)
+    loader = jinja2.FileSystemLoader([dirname] + extra_search_paths,
+                                     followlinks=True)
     relpath = os.path.relpath(filename, dirname)
-    return _render(relpath, loader, variables, keep_multi_blank_lines, undefined)
+    return _render(relpath, loader, variables, keep_multi_blank_lines,
+                   undefined)
 
 
-def _render(template_name, loader, variables, keep_multi_blank_lines, undefined):
+def _render(template_name, loader, variables, keep_multi_blank_lines,
+            undefined):
     env = jinja2.Environment(loader=loader, undefined=undefined)
     env.filters['from_json'] = from_json
     env.filters['shell'] = shell
@@ -229,7 +245,8 @@ def shell(eval_ctx, value, die_on_error=False, encoding="utf8"):
         cmd = value
     else:
         cmd = "%s ; exit 0" % value
-    output = subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True)
+    output = subprocess.check_output(cmd, stderr=subprocess.STDOUT,
+                                     shell=True)
     return output.decode(encoding)
 
 
