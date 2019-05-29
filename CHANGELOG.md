@@ -4,6 +4,7 @@
 ## [Unreleased]
 
 ### New Features
+- add reduce-multi-blank-lines option
 
 
 ### Bug Fixes
