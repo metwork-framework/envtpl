@@ -57,13 +57,18 @@ def main():
     parser.add_argument('--keep-template', action='store_true',
                         help='Keep original template file. By default, '
                         'envtpl will delete the template file')
-
     parser.add_argument('--reduce-multi-blank-lines', action='store_true',
                         help='Reduce multi empty or blank lines to a '
                         'single empty line. By default envtpl will keep '
                         'multi blank lines')
+    parser.add_argument('--jinja2-extension', action='append',
+                        help='Load the given extension (can be used '
+                        'multiple times')
 
     args = parser.parse_args()
+    jinja2_extensions = []
+    if args.jinja2_extension is not None:
+        jinja2_extensions = args.jinja2_extension
 
     variables = dict([(k, _unicodify(v)) for k, v in os.environ.items()])
 
@@ -76,7 +81,8 @@ def main():
         process_file(args.input_file, args.output_file, variables,
                      not args.allow_missing, not args.keep_template,
                      extra_search_paths,
-                     not args.reduce_multi_blank_lines)
+                     not args.reduce_multi_blank_lines,
+                     jinja2_extensions)
     except (Fatal, IOError) as e:
         sys.stderr.write('Error: %s\n' % str(e))
         sys.exit(1)
@@ -86,7 +92,8 @@ def main():
 
 def process_file(input_filename, output_filename, variables,
                  die_on_missing_variable, remove_template,
-                 extra_search_paths=[], keep_multi_blank_lines=True):
+                 extra_search_paths=[], keep_multi_blank_lines=True,
+                 jinja2_extensions=[]):
     if not input_filename and not remove_template:
         raise Fatal('--keep-template only makes sense if you specify '
                     'an input file')
@@ -107,11 +114,13 @@ def process_file(input_filename, output_filename, variables,
     if input_filename:
         output = _render_file(input_filename, variables, undefined,
                               extra_search_paths=extra_search_paths,
-                              keep_multi_blank_lines=keep_multi_blank_lines)
+                              keep_multi_blank_lines=keep_multi_blank_lines,
+                              jinja2_extensions=jinja2_extensions)
     else:
         output = _render_string(stdin_read(), variables, undefined,
                                 extra_search_paths=extra_search_paths,
-                                keep_multi_blank_lines=keep_multi_blank_lines)
+                                keep_multi_blank_lines=keep_multi_blank_lines,
+                                jinja2_extensions=jinja2_extensions)
 
     if output_filename and output_filename != '-':
         with open(output_filename, 'wb') as f:
@@ -124,7 +133,8 @@ def process_file(input_filename, output_filename, variables,
 
 
 def render_string(string, extra_variables={}, die_on_missing_variable=True,
-                  extra_search_paths=[], keep_multi_blank_lines=True):
+                  extra_search_paths=[], keep_multi_blank_lines=True,
+                  jinja2_extensions=[]):
     """
     Renders a templated string with envtpl.
 
@@ -138,7 +148,9 @@ def render_string(string, extra_variables={}, die_on_missing_variable=True,
         extra_search_path (list): list of paths (string) for templates
             searching (inheritance, includes...).
         keep_multi_blank_lines (boolean): if True (default), multi blank
-            lines are kept (otherwise they are reduced to a single one)
+            lines are kept (otherwise they are reduced to a single one).
+        jinja2_extensions (list of string): list of jinja2 extensions to load
+            (list of strings, for example: ['jinja2.ext.i18n']).
 
     Returns:
         string: rendered template.
@@ -152,18 +164,21 @@ def render_string(string, extra_variables={}, die_on_missing_variable=True,
         variables[key] = value
     return _render_string(string, variables, undefined,
                           extra_search_paths=extra_search_paths,
-                          keep_multi_blank_lines=keep_multi_blank_lines)
+                          keep_multi_blank_lines=keep_multi_blank_lines,
+                          jinja2_extensions=jinja2_extensions)
 
 
 def _render_string(string, variables, undefined,
-                   extra_search_paths=[], keep_multi_blank_lines=True):
+                   extra_search_paths=[], keep_multi_blank_lines=True,
+                   jinja2_extensions=[]):
     template_name = 'template_name'
     loader1 = jinja2.DictLoader({template_name: _unicodify(string)})
     loader2 = jinja2.FileSystemLoader([os.getcwd()] + extra_search_paths,
                                       followlinks=True)
     loader = jinja2.ChoiceLoader([loader1, loader2])
     return _render(template_name, loader, variables,
-                   undefined, keep_multi_blank_lines=keep_multi_blank_lines)
+                   undefined, keep_multi_blank_lines=keep_multi_blank_lines,
+                   jinja2_extensions=jinja2_extensions)
 
 
 def _unicodify(s):
@@ -188,18 +203,21 @@ def stdout_write(output):
 
 
 def _render_file(filename, variables, undefined,
-                 extra_search_paths=[], keep_multi_blank_lines=True):
+                 extra_search_paths=[], keep_multi_blank_lines=True,
+                 jinja2_extensions=[]):
     dirname = os.path.dirname(filename)
     loader = jinja2.FileSystemLoader([dirname] + extra_search_paths,
                                      followlinks=True)
     relpath = os.path.relpath(filename, dirname)
     return _render(relpath, loader, variables, undefined,
-                   keep_multi_blank_lines=keep_multi_blank_lines)
+                   keep_multi_blank_lines=keep_multi_blank_lines,
+                   jinja2_extensions=jinja2_extensions)
 
 
 def _render(template_name, loader, variables, undefined,
-            keep_multi_blank_lines=True):
-    env = jinja2.Environment(loader=loader, undefined=undefined)
+            keep_multi_blank_lines=True, jinja2_extensions=[]):
+    env = jinja2.Environment(loader=loader, undefined=undefined,
+                             extensions=jinja2_extensions)
     env.filters['from_json'] = from_json
     env.filters['shell'] = shell
     env.filters['getenv'] = getenv
