@@ -4,6 +4,7 @@
 ## [Unreleased]
 
 ### New Features
+- add jinja2-extension parameter
 - add reduce-multi-blank-lines option
 
 
