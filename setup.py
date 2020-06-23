@@ -112,7 +112,7 @@ if sys.version_info < (2, 7):
 setup(
     name='envtpl',
     version='0.5.3',
-    py_modules=['envtpl'],
+    py_modules=['envtpl', 'renvtpl'],
     entry_points={
         'console_scripts': ['envtpl = envtpl:main', 'renvtpl = renvtpl:main']
     },
