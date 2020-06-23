@@ -114,7 +114,7 @@ setup(
     version='0.5.3',
     py_modules=['envtpl'],
     entry_points={
-        'console_scripts': ['envtpl = envtpl:main']
+        'console_scripts': ['envtpl = envtpl:main', 'renvtpl = renvtpl:main']
     },
     install_requires=install_requires,
     author='Andreas Jansson',

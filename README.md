@@ -171,6 +171,34 @@ Example:
     >>> render_string(x)
     'foo /home/bar'
 
+## Extra-tool
+
+We also provide an extra-tool to apply `envtpl` recursively on a directory
+tree:
+
+```
+usage: renvtpl [-h] [--die-on-missing] [--extra-var EXTRA_VAR]
+               [--extra-search-path EXTRA_SEARCH_PATH]
+               SOURCE_DIRECTORY TARGET_DIRECTORY
+
+apply envtpl recursively
+
+positional arguments:
+  SOURCE_DIRECTORY      full path of the source directory
+  TARGET_DIRECTORY      full path of the target directory (will be created if
+                        it doesn't exist)
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --die-on-missing      if set, die on missing variables
+  --extra-var EXTRA_VAR
+                        extra variable to set (use coma to separate key and
+                        value) (can be used several times)
+  --extra-search-path EXTRA_SEARCH_PATH
+                        path for templates searching (inheritance,
+                        includes...) (can be used several times)
+```
+
 ## Notes
 
 We also provide a [docker image](https://github.com/metwork-framework/docker-portable-envtpl-buildimage) to build a static/portable version with pyinstaller.
