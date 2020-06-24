@@ -10,5 +10,6 @@ pipeline:
 matrix:
   PYTHON_VERSION:
     - 2.7-wheezy
-    - 3.6-jessie
     - 3.5-jessie
+    - 3.6-jessie
+    - 3.7-stretch
