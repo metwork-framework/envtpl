@@ -28,6 +28,7 @@ import io
 import subprocess
 import hashlib
 import uuid
+import fnmatch
 
 
 EXTENSION = '.tpl'
@@ -222,6 +223,7 @@ def _render(template_name, loader, variables, undefined,
     env.filters['shell'] = shell
     env.filters['getenv'] = getenv
     env.filters['uuid'] = getuuid
+    env.filters['fnmatch'] = _fnmatch
 
     template = env.get_template(template_name)
     template.globals['environment'] = get_environment
@@ -279,6 +281,11 @@ def getenv(eval_ctx, value, default=None):
 def getuuid(eval_ctx, value, default=None):
     v = str(uuid.uuid4()).replace('-', '') + value
     return hashlib.md5(v.encode()).hexdigest()
+
+
+@jinja2.evalcontextfilter
+def _fnmatch(eval_ctx, value, pattern):
+    return fnmatch.fnmatch(value, pattern)
 
 
 class Fatal(Exception):
