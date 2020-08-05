@@ -105,7 +105,7 @@ I use this script quite a lot in Docker images. Usually I'll have the CMD execut
 This is the use case I've optimised for, so that's why envtpl by default will delete the original template file.
 '''  # noqa
 
-install_requires = ['Jinja2>=2.7']
+install_requires = ['Jinja2>=2.7', 'binaryornot>=0.4.4']
 if sys.version_info < (2, 7):
     install_requires.append('argparse>=1.0')
 

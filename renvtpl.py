@@ -4,6 +4,8 @@ import os
 import errno
 import sys
 import envtpl
+import shutil
+from binaryornot.check import is_binary
 
 
 def mkdir_p(path):
@@ -92,14 +94,17 @@ def main():
         for f in files:
             source = os.path.join(root, f)
             target = os.path.join(target_root, f)
-            with open(source, "r") as f:
-                c = f.read()
-            with open(target, "w") as f:
-                newc = envtpl.render_string(
-                    c,
-                    extra_variables={x.split(',')[0]: x.split(',')[1]
-                                     for x in args.extra_var},
-                    die_on_missing_variable=args.die_on_missing,
-                    extra_search_paths=args.extra_search_path
-                )
-                f.write(newc)
+            if is_binary(source):
+                shutil.copy(source, target)
+            else:
+                with open(source, "r") as f:
+                    c = f.read()
+                with open(target, "w") as f:
+                    newc = envtpl.render_string(
+                        c,
+                        extra_variables={x.split(',')[0]: x.split(',')[1]
+                                         for x in args.extra_var},
+                        die_on_missing_variable=args.die_on_missing,
+                        extra_search_paths=args.extra_search_path
+                    )
+                    f.write(newc)
