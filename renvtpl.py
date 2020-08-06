@@ -95,7 +95,7 @@ def main():
             source = os.path.join(root, f)
             target = os.path.join(target_root, f)
             if is_binary(source):
-                shutil.copy(source, target)
+                shutil.copy2(source, target)
             else:
                 with open(source, "r") as f:
                     c = f.read()
@@ -108,3 +108,4 @@ def main():
                         extra_search_paths=args.extra_search_path
                     )
                     f.write(newc)
+                shutil.copystat(source, target)
