@@ -118,10 +118,9 @@ setup(
     },
     install_requires=install_requires,
     author='Andreas Jansson, Fabien Marty',
-    url="https://github.com/metwork-framework/envtpl",
     description=('Render jinja2 templates on the command line using shell environment variables'),
     license='GPL v3',
     keywords='template environment variables parameter substitution shell jinja2 docker',
     long_description=long_description,
-    url='https://github.com/andreasjansson/envtpl',
+    url='https://github.com/metwork-framework/envtpl',
 )
