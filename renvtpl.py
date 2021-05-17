@@ -100,12 +100,17 @@ def main():
                 with open(source, "r") as f:
                     c = f.read()
                 with open(target, "w") as f:
-                    newc = envtpl.render_string(
-                        c,
-                        extra_variables={x.split(',')[0]: x.split(',')[1]
-                                         for x in args.extra_var},
-                        die_on_missing_variable=args.die_on_missing,
-                        extra_search_paths=args.extra_search_path
-                    )
-                    f.write(newc)
+                    try:
+                        newc = envtpl.render_string(
+                            c,
+                            extra_variables={x.split(',')[0]: x.split(',')[1]
+                                             for x in args.extra_var},
+                            die_on_missing_variable=args.die_on_missing,
+                            extra_search_paths=args.extra_search_path
+                        )
+                        f.write(newc)
+                    except:
+                        print("render_string error on file %s" %
+                              f, file=sys.stderr)
+                        raise
                 shutil.copystat(source, target)
