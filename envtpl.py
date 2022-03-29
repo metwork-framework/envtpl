@@ -30,6 +30,16 @@ import hashlib
 import uuid
 import fnmatch
 
+try:
+    from jinja2 import pass_eval_context as eval_context
+except ImportError:
+    from jinja2 import evalcontextfilter as eval_context
+
+try:
+    from jina2 import contextfunction as cfunction
+except ImportError:
+    from jinja2 import pass_context  as cfunction
+
 
 EXTENSION = '.tpl'
 IS_PYTHON_2 = sys.version_info < (3, 0)
@@ -246,19 +256,19 @@ def _render(template_name, loader, variables, undefined,
     return output
 
 
-@jinja2.contextfunction
+@cfunction
 def get_environment(context, prefix=''):
     for key, value in sorted(context.items()):
         if not callable(value) and key.startswith(prefix):
             yield key[len(prefix):], value
 
 
-@jinja2.evalcontextfilter
+@eval_context
 def from_json(eval_ctx, value):
     return json.loads(value)
 
 
-@jinja2.evalcontextfilter
+@eval_context
 def shell(eval_ctx, value, die_on_error=False, encoding="utf8"):
     if die_on_error:
         cmd = value
@@ -269,7 +279,7 @@ def shell(eval_ctx, value, die_on_error=False, encoding="utf8"):
     return output.decode(encoding)
 
 
-@jinja2.evalcontextfilter
+@eval_context
 def getenv(eval_ctx, value, default=None):
     result = os.environ.get(value, default)
     if result is None:
@@ -277,13 +287,13 @@ def getenv(eval_ctx, value, default=None):
     return result
 
 
-@jinja2.evalcontextfilter
+@eval_context
 def getuuid(eval_ctx, value, default=None):
     v = str(uuid.uuid4()).replace('-', '') + value
     return hashlib.md5(v.encode()).hexdigest()
 
 
-@jinja2.evalcontextfilter
+@eval_context
 def _fnmatch(eval_ctx, value, pattern):
     return fnmatch.fnmatch(value, pattern)
 
