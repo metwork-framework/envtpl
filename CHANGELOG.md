@@ -14,6 +14,7 @@
 ### Bug Fixes
 
 - UnboundLocalError: local variable 'template' referenced before assignment
+- jinja2 3.x compat
 
 ## changelog_start (2013-11-23)
 
