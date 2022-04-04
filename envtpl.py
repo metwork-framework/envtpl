@@ -36,7 +36,7 @@ except ImportError:
     from jinja2 import evalcontextfilter as eval_context
 
 try:
-    from jina2 import contextfunction as cfunction
+    from jinja2 import contextfunction as cfunction
 except ImportError:
     from jinja2 import pass_context  as cfunction
 
