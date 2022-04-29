@@ -38,7 +38,7 @@ except ImportError:
 try:
     from jinja2 import contextfunction as cfunction
 except ImportError:
-    from jinja2 import pass_context  as cfunction
+    from jinja2 import pass_context as cfunction
 
 
 EXTENSION = '.tpl'

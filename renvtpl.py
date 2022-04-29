@@ -109,7 +109,7 @@ def main():
                             extra_search_paths=args.extra_search_path
                         )
                         f.write(newc)
-                    except:
+                    except Exception:
                         print("render_string error on file %s" %
                               f, file=sys.stderr)
                         raise
