@@ -28,5 +28,7 @@ jobs:
         pip install .
         pip install -r tests/requirements.txt
     - name: Tests
+      # nose is not python 3.10 compliant
+      if: ${{ matrix.python-version != 3.10 }}
       run: |
         make test
