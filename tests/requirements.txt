@@ -1,5 +1,5 @@
 six
-nose
+nose2
 unittest2six
 flake8
 sh
