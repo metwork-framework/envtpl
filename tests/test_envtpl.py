@@ -16,32 +16,32 @@ else:
 class TestRender(unittest.TestCase):
 
     def test_empty(self):
-        self.assertEquals(envtpl._render_string('', {}, jinja2.StrictUndefined), '')
+        self.assertEqual(envtpl._render_string('', {}, jinja2.StrictUndefined), '')
 
     def test_die_on_missing(self):
         self.assertRaises(envtpl.Fatal, envtpl._render_string, '{{ FOO }}', {},
                           jinja2.StrictUndefined)
 
     def test_dont_die_on_missing(self):
-        self.assertEquals(envtpl._render_string('{{ FOO }}', {}, jinja2.Undefined), '')
+        self.assertEqual(envtpl._render_string('{{ FOO }}', {}, jinja2.Undefined), '')
 
     def test_defaults(self):
-        self.assertEquals(envtpl._render_string('{{ FOO | default("abc") }}', {},
+        self.assertEqual(envtpl._render_string('{{ FOO | default("abc") }}', {},
                           jinja2.StrictUndefined), 'abc')
-        self.assertEquals(envtpl._render_string('{{ FOO | default("abc") }}', {'FOO': 'def'},
+        self.assertEqual(envtpl._render_string('{{ FOO | default("abc") }}', {'FOO': 'def'},
                           jinja2.StrictUndefined), 'def')
 
     def test_reduce_blank_lines(self):
         string = '\n \nHello\n   \n\nWorld'
         expected = '\nHello\n\nWorld'
-        self.assertEquals(
+        self.assertEqual(
             envtpl._render_string(string, {}, jinja2.StrictUndefined,
                                   keep_multi_blank_lines=False),
             expected)
 
     def test_keep_blank_lines(self):
         string = '\n\nHello\n   \n\nWorld'
-        self.assertEquals(
+        self.assertEqual(
             envtpl._render_string(string, {}, jinja2.StrictUndefined),
             string)
 
@@ -54,7 +54,7 @@ bar = "{{ BAR | default("abc") }}"
 foo = 456
 bar = "abc"
 '''
-        self.assertEquals(envtpl._render_string(string, {'FOO': 456},
+        self.assertEqual(envtpl._render_string(string, {'FOO': 456},
                           jinja2.StrictUndefined), expected)
 
     def test_if_block(self):
@@ -70,7 +70,7 @@ bar = "abc"'''
 foo = 456
 
 bar = "abc"'''
-        self.assertEquals(envtpl._render_string(string, {}, jinja2.StrictUndefined), expected)
+        self.assertEqual(envtpl._render_string(string, {}, jinja2.StrictUndefined), expected)
 
     def test_environment(self):
         string = '''
@@ -81,7 +81,7 @@ bar = "abc"'''
 baz = qux
 foo = bar
 '''
-        self.assertEquals(envtpl._render_string(string, {'foo': 'bar', 'baz': 'qux'},
+        self.assertEqual(envtpl._render_string(string, {'foo': 'bar', 'baz': 'qux'},
                           jinja2.StrictUndefined), expected)
 
     def test_environment_prefix(self):
@@ -92,13 +92,13 @@ foo = bar
         expected = '''
 foo = bar
 '''
-        self.assertEquals(envtpl._render_string(string, {'X_foo': 'bar', 'baz': 'X_qux'},
+        self.assertEqual(envtpl._render_string(string, {'X_foo': 'bar', 'baz': 'X_qux'},
                           jinja2.StrictUndefined), expected)
 
     @unittest.skipUnless(sys.platform == "linux", "require linux")
     def test_shell(self):
         string = '''{{ "echo foo"|shell }}'''
-        self.assertEquals(envtpl._render_string(string, {},
+        self.assertEqual(envtpl._render_string(string, {},
                                                 jinja2.StrictUndefined),
                           "foo\n")
 
@@ -106,7 +106,7 @@ foo = bar
     def test_uuid(self):
         string = '''{{ "echo foo"|uuid }}'''
         uuid = envtpl._render_string(string, {}, jinja2.StrictUndefined)
-        self.assertEquals(len(uuid), 32)
+        self.assertEqual(len(uuid), 32)
 
     def test_from_json_list(self):
         string = '''
@@ -118,7 +118,7 @@ hello
 world
 '''
         foos_json = '[{"bar": "hello"}, {"bar": "world"}]'
-        self.assertEquals(envtpl._render_string(string, {'FOOS_JSON': foos_json},
+        self.assertEqual(envtpl._render_string(string, {'FOOS_JSON': foos_json},
                                                 jinja2.StrictUndefined), expected)
 
     def test_from_json_object(self):
@@ -128,7 +128,7 @@ world
         expected = '''
 baz
 '''
-        self.assertEquals(envtpl._render_string(string, {'FOO': '{"bar": "baz"}'},
+        self.assertEqual(envtpl._render_string(string, {'FOO': '{"bar": "baz"}'},
                                                 jinja2.StrictUndefined), expected)
 
     def test_unicode_output(self):
@@ -138,7 +138,7 @@ baz
         expected = u'''
 åäö
 '''
-        self.assertEquals(envtpl._render_string(string, {}, jinja2.StrictUndefined), expected)
+        self.assertEqual(envtpl._render_string(string, {}, jinja2.StrictUndefined), expected)
 
     def test_unicode_input(self):
         string = u'''
@@ -147,7 +147,7 @@ baz
         expected = u'''
 åäö
 '''
-        self.assertEquals(envtpl._render_string(string, {}, jinja2.StrictUndefined), expected)
+        self.assertEqual(envtpl._render_string(string, {}, jinja2.StrictUndefined), expected)
 
 
 class TestFiles(unittest.TestCase):
@@ -183,7 +183,7 @@ frogs will be frogs
 456'''
         envtpl.process_file(tpl_filename, None, {}, False, True)
         with open(filename, 'r') as f:
-            self.assertEquals(f.read(), expected)
+            self.assertEqual(f.read(), expected)
 
         self.assertFalse(os.path.exists(tpl_filename))
 
@@ -201,7 +201,7 @@ frogs will be frogs
 +++'''
         envtpl.process_file(tpl_filename, None, {'FOO': '---', 'BAR': '+++'}, False, True)
         with open(filename, 'r') as f:
-            self.assertEquals(f.read(), expected)
+            self.assertEqual(f.read(), expected)
 
     def test_include(self):
         filename = os.path.join(self.scratch_dir, 'file1')
@@ -221,7 +221,7 @@ frogs will be frogs
 +++'''
         envtpl.process_file(tpl_filename, None, {'FOO': '---', 'BAR': '+++'}, False, True)
         with open(filename, 'r') as f:
-            self.assertEquals(f.read(), expected)
+            self.assertEqual(f.read(), expected)
 
     def test_no_delete(self):
         filename = os.path.join(self.scratch_dir, 'file1')
@@ -232,7 +232,7 @@ frogs will be frogs
 
         envtpl.process_file(tpl_filename, None, {'FOO': '---', 'BAR': '+++'}, False, False)
         with open(filename, 'r') as f:
-            self.assertEquals(f.read(), 'foo')
+            self.assertEqual(f.read(), 'foo')
 
         self.assertTrue(os.path.exists(tpl_filename))
 
@@ -254,7 +254,7 @@ frogs will be frogs
 
         envtpl.process_file(tpl_filename, output_filename, {}, False, True)
         with open(output_filename, 'r') as f:
-            self.assertEquals(f.read(), 'foo')
+            self.assertEqual(f.read(), 'foo')
 
         self.assertFalse(os.path.exists(tpl_filename))
 
@@ -293,7 +293,7 @@ class TestSubprocess(unittest.TestCase):
         self.assertFalse(os.path.exists(tpl_filename))
         self.assertTrue(os.path.exists(txt_filename))
         with open(txt_filename, 'r') as f:
-            self.assertEquals('hello world', f.read())
+            self.assertEqual('hello world', f.read())
 
     def test_stdin(self):
         out = sh.python(
@@ -302,4 +302,4 @@ class TestSubprocess(unittest.TestCase):
             _in='hello {{FOO}}',
         )
 
-        self.assertEquals('hello world', out)
+        self.assertEqual('hello world', out)
