@@ -27,9 +27,9 @@ class TestRender(unittest.TestCase):
 
     def test_defaults(self):
         self.assertEqual(envtpl._render_string('{{ FOO | default("abc") }}', {},
-                          jinja2.StrictUndefined), 'abc')
+                         jinja2.StrictUndefined), 'abc')
         self.assertEqual(envtpl._render_string('{{ FOO | default("abc") }}', {'FOO': 'def'},
-                          jinja2.StrictUndefined), 'def')
+                         jinja2.StrictUndefined), 'def')
 
     def test_reduce_blank_lines(self):
         string = '\n \nHello\n   \n\nWorld'
@@ -55,7 +55,7 @@ foo = 456
 bar = "abc"
 '''
         self.assertEqual(envtpl._render_string(string, {'FOO': 456},
-                          jinja2.StrictUndefined), expected)
+                         jinja2.StrictUndefined), expected)
 
     def test_if_block(self):
         string = '''
@@ -82,7 +82,7 @@ baz = qux
 foo = bar
 '''
         self.assertEqual(envtpl._render_string(string, {'foo': 'bar', 'baz': 'qux'},
-                          jinja2.StrictUndefined), expected)
+                         jinja2.StrictUndefined), expected)
 
     def test_environment_prefix(self):
         string = '''
@@ -93,14 +93,14 @@ foo = bar
 foo = bar
 '''
         self.assertEqual(envtpl._render_string(string, {'X_foo': 'bar', 'baz': 'X_qux'},
-                          jinja2.StrictUndefined), expected)
+                         jinja2.StrictUndefined), expected)
 
     @unittest.skipUnless(sys.platform == "linux", "require linux")
     def test_shell(self):
         string = '''{{ "echo foo"|shell }}'''
         self.assertEqual(envtpl._render_string(string, {},
-                                                jinja2.StrictUndefined),
-                          "foo\n")
+                                               jinja2.StrictUndefined),
+                         "foo\n")
 
     @unittest.skipUnless(sys.platform == "linux", "require linux")
     def test_uuid(self):
@@ -119,7 +119,7 @@ world
 '''
         foos_json = '[{"bar": "hello"}, {"bar": "world"}]'
         self.assertEqual(envtpl._render_string(string, {'FOOS_JSON': foos_json},
-                                                jinja2.StrictUndefined), expected)
+                                               jinja2.StrictUndefined), expected)
 
     def test_from_json_object(self):
         string = '''
@@ -129,7 +129,7 @@ world
 baz
 '''
         self.assertEqual(envtpl._render_string(string, {'FOO': '{"bar": "baz"}'},
-                                                jinja2.StrictUndefined), expected)
+                                               jinja2.StrictUndefined), expected)
 
     def test_unicode_output(self):
         string = '''
