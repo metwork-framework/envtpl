@@ -3,3 +3,4 @@ nose2
 unittest2six
 flake8
 sh
+setuptools; python_version > '3.11'
